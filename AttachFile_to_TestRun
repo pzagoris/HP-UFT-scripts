@@ -1,0 +1,30 @@
+Dim CurrentRun, att,att, filename, filepath
+
+If parameter("strFileName") <> "" Then
+	Set objFSO = CreateObject("Scripting.FileSystemObject")
+        Set objFile = objFSO.GetFile(parameter("strFileName"))
+        	filename = objFSO.GetFileName(objFile)
+        	filepath = objFSO.GetParentFolderName(parameter("strFileName"))
+else
+    Reporter.ReportEvent micFail,"File Path","No Path provided"
+End If
+	
+	
+On error resume next
+'---- HP OTA API
+If QCUtil.IsConnected Then
+	Set CurrentRun =TDUtil.CurrentRun
+	
+	'--- current run attachments object
+	Set attf = CurrentRun.Attachments
+	Set att = attf.AddItem(filename)
+	
+	'--- save the changes
+	att.Post
+	att.Refresh
+	
+	Set ExStrg = att.AttachmentStorage
+	ExStrg.ClientPath = filepath
+	ExStrg.Save filename, True
+	
+End if
